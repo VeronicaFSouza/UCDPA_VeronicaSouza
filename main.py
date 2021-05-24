@@ -3,8 +3,8 @@ import numpy as np
 import csv
 import matplotlib.pyplot as plt
 from alpha_vantage.timeseries import TimeSeries
-import time
 from alpha_vantage.techindicators import TechIndicators
+import matplotlib.dates as mdates
 
 # Real World Finance dataset:
 api_key = '40U5ZR97VALZHOQE'
@@ -24,7 +24,6 @@ if abs(last_change) > 0.0004:
     print("IBM Alert:" + last_change)
 
 # Retrieving datasets from Kaggle and importing into Pandas
-
 AFL_bank = pd.read_csv("AFL.csv")
 print(AFL_bank.head())
 print(AFL_bank.info())
@@ -32,11 +31,9 @@ print(AFL_bank.describe)
 print(AFL_bank.columns)
 print(AFL_bank.values)
 print(AFL_bank.info())
-AFL_bank_Date = pd.to_datetime(AFL_bank.Date)
 
 JPMorgan = pd.read_csv("JPM.csv")
 print(JPMorgan.head())
-JPMorgan_Date = pd.to_datetime(JPMorgan.Date)
 
 US_Historical = pd.read_csv("dataset_summary (1).csv")
 print(US_Historical.head)
@@ -100,6 +97,8 @@ for columns in AFL_bank:
 #    time.sleep(60)
 
 # Merging tables AFL_bank and JPMorgan with a inner join
+JPMorgan_Date = pd.to_datetime(JPMorgan.Date)
+AFL_bank_Date = pd.to_datetime(AFL_bank.Date)
 JPM_AFL = AFL_bank.merge(JPMorgan, on='Date')
 print(JPM_AFL.head(4))
 
@@ -120,13 +119,11 @@ print(AFL_array_transposed.size)
 print(AFL_array_transposed.shape)
 
 # Subset 3rd row from AFL_array transposed
-
 AFL_array_sub = AFL_array_transposed[:, 3]
 print(AFL_array_sub)
 
 # Plots
 # API 'IBM' plot
-
 period = 120
 
 ti = TechIndicators(key=api_key, output_format='pandas')
@@ -148,11 +145,12 @@ ax2.plot(df2, 'r.')
 plt.title("SMA & RSI graph")
 plt.show()
 
-# JPMorgan Plot
+# JPMorgan Daily Closing Price
 
-fig, ax = plt.subplots()
-ax.plot(JPMorgan["Date"], JPMorgan["Close"])
-ax.set(xlabel='Date', ylabel='Closing Value')
-ax.set_title('Closing Prices Variation')
-ax.grid()
+JPM = pd.read_csv('JPM.csv', header=0, index_col='Date', parse_dates=True)
+plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
+plt.gca().xaxis.set_major_locator(mdates.YearLocator())
+plt.grid(True)
+plt.xticks(rotation=90)
+plt.plot(JPM.index, JPM['Adj Close'])
 plt.show()
