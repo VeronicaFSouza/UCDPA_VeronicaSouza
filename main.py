@@ -2,12 +2,11 @@ import pandas as pd
 import numpy as np
 import csv
 import matplotlib.pyplot as plt
-import mplfinance as mpf
 from alpha_vantage.timeseries import TimeSeries
 import time
 from alpha_vantage.techindicators import TechIndicators
 
-# Real dataset
+# Real World Finance dataset:
 api_key = '40U5ZR97VALZHOQE'
 
 ts = TimeSeries(key=api_key, output_format='pandas')
@@ -32,9 +31,8 @@ print(AFL_bank.info())
 print(AFL_bank.describe)
 print(AFL_bank.columns)
 print(AFL_bank.values)
-AFL_bank_Date = pd.to_datetime(AFL_bank.Date)
 print(AFL_bank.info())
-
+AFL_bank_Date = pd.to_datetime(AFL_bank.Date)
 
 JPMorgan = pd.read_csv("JPM.csv")
 print(JPMorgan.head())
@@ -122,10 +120,12 @@ print(AFL_array_transposed.size)
 print(AFL_array_transposed.shape)
 
 # Subset 3rd row from AFL_array transposed
+
 AFL_array_sub = AFL_array_transposed[:, 3]
 print(AFL_array_sub)
 
-# Plot
+# Plots
+# API 'IBM' plot
 
 period = 120
 
@@ -141,11 +141,18 @@ df1 = data_sma.iloc[1::]
 df2 = data_ti
 df1.index = df2.index
 
-fig, ax1 = plt.subplots()
-ax1.plot(df1, 'b-')
-ax2 = ax1.twinx()
+fig, ax = plt.subplots()
+ax.plot(df1, 'b-')
+ax2 = ax.twinx()
 ax2.plot(df2, 'r.')
 plt.title("SMA & RSI graph")
 plt.show()
 
+# JPMorgan Plot
 
+fig, ax = plt.subplots()
+ax.plot(JPMorgan["Date"], JPMorgan["Close"])
+ax.set(xlabel='Date', ylabel='Closing Value')
+ax.set_title('Closing Prices Variation')
+ax.grid()
+plt.show()
