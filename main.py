@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 from alpha_vantage.timeseries import TimeSeries
 from alpha_vantage.techindicators import TechIndicators
 import matplotlib.dates as mdates
+import plotly as py
+import plotly.graph_objects as go
 
 # Real World Finance dataset:
 api_key = '40U5ZR97VALZHOQE'
@@ -12,16 +14,6 @@ api_key = '40U5ZR97VALZHOQE'
 ts = TimeSeries(key=api_key, output_format='pandas')
 data, meta_data = ts.get_intraday(symbol='IBM', interval='1min', outputsize='full')
 print(data)
-
-close_data = data['4. close']
-percentage_change = close_data.pct_change()
-
-print(percentage_change)
-
-last_change = percentage_change[-1]
-
-if abs(last_change) > 0.0004:
-    print("IBM Alert:" + last_change)
 
 # Retrieving datasets from Kaggle and importing into Pandas
 AFL_bank = pd.read_csv("AFL.csv")
@@ -39,6 +31,16 @@ US_Historical = pd.read_csv("dataset_summary (1).csv")
 print(US_Historical.head)
 
 # Analyzing Data
+# Volatility of IBM Stock
+close_data = data['4. close']
+percentage_change = close_data.pct_change()
+
+print(percentage_change)
+
+last_change = percentage_change[-1]
+
+if abs(last_change) > 0.0004:
+    print("IBM Alert:" + 'last_change')
 # Sorting AFL Bank by descending Volume
 AFL_bank_vol = AFL_bank.sort_values("Volume", ascending=False)
 print(AFL_bank_vol.head())
@@ -89,7 +91,8 @@ for columns in AFL_bank:
     print(columns)
     break
 
-# While loop - Commented to not interfere with the script (takes too long to run)
+# Using a while loop to save data for IBM into excel
+# (Commented to not interfere with the script-takes too long to run)
 #i = 1
 #while i==1:
 #    data, meta_data = ts.get_intraday(symbol='IBM', interval='1min', outputsize='full')
@@ -123,7 +126,7 @@ AFL_array_sub = AFL_array_transposed[:, 3]
 print(AFL_array_sub)
 
 # Plots
-# API 'IBM' plot
+# API 'IBM' RSA & SMA graph
 period = 120
 
 ti = TechIndicators(key=api_key, output_format='pandas')
@@ -146,11 +149,33 @@ plt.title("SMA & RSI graph")
 plt.show()
 
 # JPMorgan Daily Closing Price
-
 JPM = pd.read_csv('JPM.csv', header=0, index_col='Date', parse_dates=True)
 plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
 plt.gca().xaxis.set_major_locator(mdates.YearLocator())
 plt.grid(True)
 plt.xticks(rotation=90)
 plt.plot(JPM.index, JPM['Adj Close'])
+plt.title("Daily Closing Prices")
 plt.show()
+
+# AFL Historical stock prices
+AFL = AFL_bank.iloc[::-1]
+AFL['Date'] = pd.to_datetime(AFL['Date'])
+AFL['20wma'] = AFL['Close'].rolling(window = 140).mean()
+fig2 = go.Figure(data = [go.Candlestick(x=AFL['Date'],
+                        open=AFL['Open'], high= AFL['High'],
+                        low=AFL['Low'], close=AFL['Close'])])
+fig2.add_trace(
+    go.Scatter(
+        x=AFL['Date'],
+        y=AFL['20wma'],
+        line=dict(color="#e0e0e0"),
+        name="20-week"
+    ))
+
+fig2.update_layout(xaxis_rangeslider_visible=False, template="plotly_dark")
+fig2.update_layout(yaxis_title="AFL price", xaxis_title="Date")
+fig2.update_yaxes(type="log")
+fig2.show()
+
+
