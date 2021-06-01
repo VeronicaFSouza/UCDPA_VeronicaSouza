@@ -41,6 +41,7 @@ last_change = percentage_change[-1]
 
 if abs(last_change) > 0.0004:
     print("IBM Alert:" + 'last_change')
+
 # Sorting AFL Bank by descending Volume
 AFL_bank_vol = AFL_bank.sort_values("Volume", ascending=False)
 print(AFL_bank_vol.head())
@@ -83,15 +84,12 @@ print(missing_values_count[0:5])
 dropcolumns = US_Historical.dropna(axis=1)
 print(US_Historical.shape, dropcolumns.shape)
 
-# Filling all missing values with 0
-cleaned_data = US_Historical.fillna(0)
-
 # Loops
 for columns in AFL_bank:
     print(columns)
     break
 
-# Using a while loop to save data for IBM into excel
+# Using a while loop to save data for IBM into excel and update it by minute
 # (Commented to not interfere with the script-takes too long to run)
 #i = 1
 #while i==1:
